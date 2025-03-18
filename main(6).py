@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter import simpledialog, messagebox
 from board import Board, WIDTH, HEIGHT
 
 vainqueur = ""
