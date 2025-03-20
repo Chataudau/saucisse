@@ -10,6 +10,8 @@ LIGNES = 7
 WIDTH = 2 * XMIN + 8 * DIST
 HEIGHT = 2 * YMIN + 6 * DIST
 
+
+
 class Board:
     def __init__(self, canvas):
         self.canvas = canvas
@@ -57,24 +59,32 @@ class Board:
             self.selected_points = []
 
     def point_bloque(self, col, ligne):
-        """Marque un point comme bloqué s'il n'a aucun voisin valide à 2 colonnes ou 2 lignes."""
-        # Définir les directions possibles pour vérifier les voisins : horizontal, vertical, diagonal
-        directions = [(-2, 0), (2, 0), (0, -2), (0, 2), (-2, -2), (-2, 2), (2, -2), (2, 2)]
+        """Marque un point comme bloqué s'il n'a pas au moins deux voisins valides dans un rayon de 2 colonnes ou 2 lignes max."""
+        directions = [(-2, 0), (2, 0), (0, -2), (0, 2), (-2, -2), (-2, 2), (2, -2), (2, 2),                                                #certains cas ou ça ne marche pas
+                 (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Diagonales immédiates à 1 unité
 
-        # Vérifier si le point a des voisins valides dans les 8 directions possibles
+        valid_neighbors = 0  # Compte le nombre de voisins valides
+
+        # Vérifier si le point a des voisins valides dans les directions possibles
         for dx, dy in directions:
             new_col = col + dx
             new_ligne = ligne + dy
-            
+        
             # Vérifier si les nouvelles coordonnées sont valides et à l'intérieur du plateau
             if 0 <= new_col < COLONNES and 0 <= new_ligne < LIGNES:
-                # Si le voisin est valide et n'est pas bloqué, ne pas bloquer ce point
+                # Si le voisin est valide et n'est pas déjà occupé (bloqué)
                 if (new_col, new_ligne) not in self.occupied_points:
-                    return  # Le point n'est pas bloqué, car il a un voisin valide
+                    valid_neighbors += 1
+        
+        # Si on a trouvé 2 voisins valides, le point n'est pas bloqué
+            if valid_neighbors >= 2:
+                return
 
-        # Si aucun voisin valide n'est trouvé, on marque le point comme bloqué
+    # Si moins de 2 voisins valides sont trouvés, on marque le point comme bloqué
         self.canvas.itemconfig(self.point[col][ligne][0], fill="black")  # Change la couleur du point en noir
         self.occupied_points.add((col, ligne))  # Ajouter le point à l'ensemble des points bloqués
+
+
 
     def end_turn(self):
         """Fin de tour, vérifie et marque les points bloqués sur le plateau."""
@@ -104,3 +114,4 @@ class Board:
         # Après avoir dessiné la saucisse, vérifier les points bloqués
         for col, ligne in self.selected_points:
             self.point_bloque(col, ligne)  # Marque chaque point comme bloqué si nécessaire
+
