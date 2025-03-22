@@ -13,13 +13,14 @@ HEIGHT = 2 * YMIN + 6 * DIST
 
 
 class Board:
-    def __init__(self, canvas):
+    def __init__(self, canvas, saucisse_posee):
         self.canvas = canvas
         self.point = [[None for _ in range(LIGNES)] for _ in range(COLONNES)]  # Création de la matrice
         self.selected_points = []  # Liste des points sélectionnés
         self.sausages = []         # Liste des saucisses déjà posées
         self.occupied_points = set()  # Points déjà utilisés dans une saucisse
         self.current_player = 1    # Le joueur 1 commence
+        self.saucisse_posee = saucisse_posee # Stocke la variable saucisse_posée passée par Game
         self.draw_board()          # Dessiner le plateau
 
     def draw_board(self):
@@ -60,8 +61,8 @@ class Board:
 
     def point_bloque(self, col, ligne):
         """Marque un point comme bloqué s'il n'a pas au moins deux voisins valides dans un rayon de 2 colonnes ou 2 lignes max."""
-        directions = [(-2, 0), (2, 0), (0, -2), (0, 2), (-2, -2), (-2, 2), (2, -2), (2, 2),                                                #certains cas ou ça ne marche pas
-                 (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Diagonales immédiates à 1 unité
+        directions = [(-2, 0), (2, 0), (0, -2), (0, 2), (-2, -2), (-2, 2), (2, -2), (2, 2),                                                #
+                 (1, 1), (-1, -1), (1, -1), (-1, 1)]
 
         valid_neighbors = 0  # Compte le nombre de voisins valides
 
@@ -110,6 +111,9 @@ class Board:
                 XMIN + self.selected_points[i+1][0] * DIST,
                 YMIN + self.selected_points[i+1][1] * DIST,
                 width=5, fill=color)
+            
+        self.saucisse_posee[self.current_player] = True
         
 
-
+            
+    
