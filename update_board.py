@@ -111,7 +111,5 @@ class Board:
                 YMIN + self.selected_points[i+1][1] * DIST,
                 width=5, fill=color)
         
-        # Après avoir dessiné la saucisse, vérifier les points bloqués
-        for col, ligne in self.selected_points:
-            self.point_bloque(col, ligne)  # Marque chaque point comme bloqué si nécessaire
+
 
