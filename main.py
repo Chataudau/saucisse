@@ -15,7 +15,8 @@ HEIGHT = 2 * YMIN + 6 * DIST
 
 class Game:
     def __init__(self, canvas):
-        self.board = Board(canvas)  # Créer une instance de la classe Board
+        self.saucisse_posee = {1: False, 2: False}
+        self.board = Board(canvas, self.saucisse_posee)  # Créer une instance de la classe Board
         self.current_player = 1  # Le joueur Rouge commence (1 = Rouge, 2 = Vert)
         self.game_over = False   # Variable pour savoir si la partie est terminée
         self.turn_completed = [False, False]  # Liste pour suivre si chaque joueur a terminé son tour
@@ -27,10 +28,9 @@ class Game:
         self.remaining_time = {1: self.turn_time, 2: self.turn_time}  # Temps restant pour chaque joueur
 
         # Crée un label pour afficher le temps
-        self.time_label = Label(root, text=f"Temps Rouge: {self.format_time(self.remaining_time[1])}   Temps Vert: {self.format_time(self.remaining_time[2])}", font=("Helvetica", 14))
+        self.time_label = Label(MyWindow, text=f"Temps Rouge: {self.format_time(self.remaining_time[1])}   Temps Vert: {self.format_time(self.remaining_time[2])}", font=("Helvetica", 14))
         self.time_label.pack()
 
-        # Démarrer immédiatement le décompte du temps pour le joueur Rouge
         self.start_timer()
 
     def format_time(self, seconds):
@@ -38,11 +38,11 @@ class Game:
         seconds = int(seconds)  # Arrondi à la seconde
         minutes = seconds // 60
         seconds = seconds % 60
-        return f"{minutes:02}:{seconds:02}"
+        return f"{minutes:02}:{seconds:02}"  #02 pour afficher au moins deux nombre si 3 sec --> 03
 
     def start_timer(self):
-        """Démarre le timer pour le joueur Rouge et Vert (10 secondes par coup)."""
-        self.start_time[1] = time.time()  # Démarre le timer pour le joueur Rouge
+        """Démarre le timer pour le joueur Rouge et Vert."""
+        self.start_time[self.current_player] = time.time()  # Démarre le timer pour le joueur Rouge
         self.update_time()
 
     def update_time(self):
@@ -62,18 +62,17 @@ class Game:
             self.time_label.config(text=f"Temps Rouge: {self.format_time(self.remaining_time[1])}   Temps Vert: {self.format_time(self.remaining_time[2])}")
 
             # Continuer le décompte du temps à chaque intervalle de 100ms
-            root.after(100, self.update_time)
+            MyWindow.after(100, self.update_time)
 
     def play_turn(self):
         """Gère un tour de jeu, change de joueur et vérifie l'état des points."""
         if self.game_over:
             return  # Si la partie est terminée, on ne joue plus
-
-        # Si le joueur a déjà fait une saucisse, il ne peut pas en refaire jusqu'à ce qu'il passe son tour
-        if self.turn_completed[self.current_player - 1]:
-            messagebox.showinfo("Tour du joueur", f"Le joueur {'Rouge' if self.current_player == 1 else 'Vert'} doit attendre son tour.")
-            return  # Le joueur ne peut pas jouer tant qu'il a déjà fait une saucisse
-
+        
+        if not self.saucisse_posee[self.current_player]:
+            messagebox.showinfo("Tour incomplet", f"Le joueur {'Rouge' if self.current_player == 1 else 'Vert'} doit poser une saucisse avant de passer son tour.")
+            return  # Empêche de passer le tour tant que la saucisse n'a pas été posée
+        
         # Appelle end_turn pour vérifier les points bloqués
         self.board.end_turn()
 
@@ -85,6 +84,8 @@ class Game:
 
         # Permet au nouvel autre joueur de jouer
         self.turn_completed[self.current_player - 1] = False  # Le joueur qui vient de passer son tour peut maintenant jouer
+        
+        self.saucisse_posee[self.current_player] = False  # Réinitialisation pour le nouveau joueur
 
         # Redémarre le timer pour l'autre joueur (reset du temps de 10 secondes)
         self.start_time[self.current_player] = time.time()  # Définir l'heure de début pour le joueur suivant
@@ -104,7 +105,7 @@ class Game:
     def quit_game(self):
         """Ferme la fenêtre du jeu."""
         print("Le jeu est fermé.")
-        root.quit()
+        MyWindow.quit()
 
     def surrender(self):
         """Abandonne la partie et affiche qui a gagné."""
@@ -118,29 +119,30 @@ class Game:
 
 
 # Configuration de l'interface utilisateur
-root = Tk()
-root.title("Jeu de Plateau")
+MyWindow = Tk()
+MyWindow.title("Jeu de Plateau")
 
 # Création du canvas
-canvas = Canvas(root, width=WIDTH, height=HEIGHT)
+canvas = Canvas(MyWindow, width=WIDTH, height=HEIGHT)
 canvas.pack()
 
 # Créer une instance du jeu
 game = Game(canvas)
 
 # Bouton pour quitter le jeu
-quit_button = Button(root, text="Quitter", command=game.quit_game)
+quit_button = Button(MyWindow, text="Quitter", command=game.quit_game)
 quit_button.pack(pady=5)
 
 # Bouton pour abandonner et afficher le gagnant
-surrender_button = Button(root, text="Abandonner", command=game.surrender)
+surrender_button = Button(MyWindow, text="Abandonner", command=game.surrender)
 surrender_button.pack(pady=5)
 
 # Bouton pour jouer un tour (juste pour tester)
-play_button = Button(root, text="Jouer un tour", command=game.play_turn)
+play_button = Button(MyWindow, text="Jouer un tour", command=game.play_turn)
 play_button.pack(pady=5)
 
-root.mainloop()
+MyWindow.mainloop()
+
 
 
 
