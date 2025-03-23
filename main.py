@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
+#from tkinter import messagebox
 from board import Board
 import time
 
@@ -105,7 +105,7 @@ class Game:
     def quit_game(self):
         """Ferme la fenêtre du jeu."""
         print("Le jeu est fermé.")
-        MyWindow.quit()
+        MyWindow.destroy()
 
     def surrender(self):
         """Abandonne la partie et affiche qui a gagné."""
